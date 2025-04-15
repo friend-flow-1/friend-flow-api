@@ -13,12 +13,12 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
-	userHandler, err := internal.InitializeModules(cfg)
+	userHandler, authHandler, err := internal.InitializeModules(cfg)
 	if err != nil {
 		log.Fatalf("Failed to initialize modules: %v", err)
 	}
 
-	log.Fatal(http.ListenAndServe(":8080", routes.SetupRoutes(userHandler)))
+	log.Fatal(http.ListenAndServe(":8080", routes.SetupRoutes(userHandler, authHandler)))
 
 	defer db.Session.Close()
 
