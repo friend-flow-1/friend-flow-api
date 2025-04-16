@@ -13,6 +13,7 @@ type Config struct {
 	DBHost     string
 	DBKeyspace string
 	JWTSecret  string
+	ApiPort    string
 }
 
 func LoadConfig() *Config {
@@ -22,6 +23,7 @@ func LoadConfig() *Config {
 		DBHost:     GetEnv("DB_HOST", "127.0.0.1:9042"),
 		DBKeyspace: GetEnv("DB_KEYSPACE", "friendflow"),
 		JWTSecret:  GetEnv("JWT_SECRET", "friendflowsecret"),
+		ApiPort:    GetEnv("API_PORT", "8080"),
 	}
 	return cfg
 }

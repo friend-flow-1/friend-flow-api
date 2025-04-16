@@ -4,17 +4,20 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/haxxu/friend-flow-api/internal/auth"
-	"github.com/haxxu/friend-flow-api/internal/user"
+	"github.com/haxxu/friend-flow-api/internal/modules/auth"
+	"github.com/haxxu/friend-flow-api/internal/modules/user"
 )
 
-func SetupRoutes(userHandler *user.Handler, authHandler *auth.Handler) http.Handler {
-	router := mux.NewRouter()
+type Handlers struct {
+	AuthHandler *auth.AuthHandler
+	UserHandler *user.UserHandler
+}
 
-	api := router.PathPrefix("/api/v1").Subrouter()
+func SetupRoutes(r *mux.Router, h *Handlers) http.Handler {
+	api := r.PathPrefix("/api/v1").Subrouter()
 
-	AuthRoutes(api, authHandler)
-	UserRoutes(api, userHandler)
+	AuthRoutes(api, h.AuthHandler)
+	UserRoutes(api, h.UserHandler)
 
-	return router
+	return r
 }

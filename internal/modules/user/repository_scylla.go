@@ -15,12 +15,18 @@ func NewRepository(session *gocql.Session) Repository {
 func (r *repository) Create(user *User) error {
 	return r.Session.Query(`
 		INSERT INTO users (
-			id, email, phone, first_name, last_name, 
-			password, status, background, avatar, birth_date, gender, created_at, updated_at
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		user.ID, user.Email, user.Phone, user.FirstName, user.LastName,
-		user.Password, user.Status, user.Background, user.Avatar, user.BirthDate, user.Gender, user.CreatedAt, user.UpdatedAt,
+			id, email, first_name, last_name, 
+			password, status, gender, created_at, updated_at, created_by, updated_by
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		user.ID, user.Email, user.FirstName, user.LastName,
+		user.Password, user.Status, user.Gender, user.CreatedAt, user.UpdatedAt, user.CreatedBy, user.UpdatedBy,
 	).Exec()
+
+	// query, values, err := cqlutil.GenerateInsertQuery("users", user)
+	// if err != nil {
+	// 	return err
+	// }
+	// return r.Session.Query(query, values...).Exec()
 }
 
 func (r *repository) FindByEmail(email string) (*User, error) {

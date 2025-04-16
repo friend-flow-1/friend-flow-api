@@ -10,16 +10,19 @@ func CreateUsersTable(session *gocql.Session) error {
 		phone TEXT,
 		first_name TEXT,
 		last_name TEXT,
-		full_name TEXT,
 		password TEXT,
 		status TEXT,
 		background TEXT,
 		avatar TEXT,
 		birth_date TIMESTAMP,
 		gender TEXT,
+		role TEXT,
 		created_at TIMESTAMP,
+		created_by TEXT,
 		updated_at TIMESTAMP,
-		deleted_at TIMESTAMP
+		updated_by TEXT,
+		deleted_at TIMESTAMP,
+		deleted_by TEXT
 	)`
 	return session.Query(query).Exec()
 }

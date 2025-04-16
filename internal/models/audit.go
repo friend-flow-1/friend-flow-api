@@ -8,4 +8,5 @@ type AuditFields struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty" gocql:"deleted_at"`
 	CreatedBy string     `json:"created_by,omitempty" gocql:"created_by"`
 	UpdatedBy string     `json:"updated_by,omitempty" gocql:"updated_by"`
+	DeletedBy string     `json:"deleted_by,omitempty" gocql:"deleted_by"`
 }

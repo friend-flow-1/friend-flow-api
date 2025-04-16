@@ -7,18 +7,17 @@ import (
 	"github.com/haxxu/friend-flow-api/internal"
 	"github.com/haxxu/friend-flow-api/internal/config"
 	"github.com/haxxu/friend-flow-api/internal/db"
-	"github.com/haxxu/friend-flow-api/internal/routes"
 )
 
 func main() {
 	cfg := config.LoadConfig()
 
-	userHandler, authHandler, err := internal.InitializeModules(cfg)
+	app, err := internal.InitializeApp(cfg)
 	if err != nil {
-		log.Fatalf("Failed to initialize modules: %v", err)
+		log.Fatalf("Failed to initialize: %v", err)
 	}
 
-	log.Fatal(http.ListenAndServe(":8080", routes.SetupRoutes(userHandler, authHandler)))
+	log.Fatal(http.ListenAndServe(":"+cfg.ApiPort, app.Router))
 
 	defer db.Session.Close()
 
