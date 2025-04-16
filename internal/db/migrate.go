@@ -10,6 +10,7 @@ import (
 func AutoMigrate(session *gocql.Session) {
 	migrations := []func(*gocql.Session) error{
 		migrations.CreateUsersTable,
+		migrations.CreateCasbinPolicyTable,
 	}
 
 	for _, migrate := range migrations {

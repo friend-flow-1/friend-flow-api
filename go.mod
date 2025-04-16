@@ -6,6 +6,7 @@ require (
 	github.com/casbin/casbin v1.9.1
 	github.com/casbin/casbin/v2 v2.104.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-playground/validator/v10 v10.26.0
 	github.com/gocql/gocql v1.7.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
@@ -19,7 +20,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.26.0 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect

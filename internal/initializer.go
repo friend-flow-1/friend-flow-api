@@ -7,7 +7,7 @@ import (
 	"github.com/haxxu/friend-flow-api/internal/db"
 	"github.com/haxxu/friend-flow-api/internal/modules/auth"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
-	mycasbin "github.com/haxxu/friend-flow-api/internal/rbac"
+	"github.com/haxxu/friend-flow-api/internal/rbac"
 	"github.com/haxxu/friend-flow-api/internal/routes"
 )
 
@@ -25,13 +25,17 @@ func InitializeApp(cfg *config.Config) (*App, error) {
 	db.AutoMigrate(session)
 	db.CreateIndexes(session)
 
+	if err := rbac.InitEnforcer(session); err != nil {
+		return nil, err
+	}
+
 	// Initialize User module
 	userRepo := user.NewRepository(session)
 	userService := user.NewUserService(userRepo)
 	userHandler := user.NewUserHandler(userService)
 
 	// Initialize Auth module
-	authService := auth.NewAuthService(userRepo, mycasbin.Enforcer, cfg.JWTSecret)
+	authService := auth.NewAuthService(userRepo, rbac.Enforcer, cfg.JWTSecret)
 	authHandler := auth.NewAuthHandler(authService)
 
 	// Router

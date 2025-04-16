@@ -63,7 +63,7 @@ func (s *AuthService) Register(req RegisterDTO) (*user.User, error) {
 	}
 
 	// Assign casbin role
-	// s.Enforcer.AddRoleForUser(u.ID, string(u.Role))
+	s.Enforcer.AddRoleForUser(u.ID, string(u.Role))
 
 	u.Password = ""
 	return u, nil
@@ -75,11 +75,6 @@ func (s *AuthService) Login(req LoginDTO) (string, *user.User, error) {
 		log.Println("Error finding user:", err)
 		return "", nil, errors.New("invalid credentials")
 	}
-
-	// Log request and user password for debugging (ensure no sensitive info is exposed)
-	log.Println("Request Email:", req.Email)
-	log.Println("User Stored Password:", u.Password)
-	log.Println("Request Password:", req.Password)
 
 	// Compare password hash
 	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(req.Password)); err != nil {
@@ -94,9 +89,6 @@ func (s *AuthService) Login(req LoginDTO) (string, *user.User, error) {
 		return "", nil, err
 	}
 
-	// Log generated token for debugging (ensure sensitive data is logged properly)
-	log.Println("Generated Token:", token)
-
 	// Clear sensitive information before returning user
 	u.Password = ""
 	return token, u, nil
@@ -108,7 +100,6 @@ func (s *AuthService) generateJWT(u *user.User) (string, error) {
 		log.Println("JWT Secret is empty!")
 		return "", errors.New("missing JWT secret")
 	}
-	log.Println("Using JWT Secret for signing")
 
 	// Set JWT claims
 	claims := jwt.MapClaims{
