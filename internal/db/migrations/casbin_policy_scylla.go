@@ -2,7 +2,7 @@ package migrations
 
 import "github.com/gocql/gocql"
 
-func CreateCasbinPolicyTable(session *gocql.Session) error {
+func CreateCasbinPolicyTableScylla(session *gocql.Session) error {
 	query := `
 	CREATE TABLE IF NOT EXISTS casbin_policy (
 		no TEXT PRIMARY KEY,

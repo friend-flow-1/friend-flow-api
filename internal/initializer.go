@@ -1,52 +1,47 @@
 package internal
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/gocql/gocql"
-	"github.com/gorilla/mux"
 	"github.com/haxxu/friend-flow-api/internal/config"
 	"github.com/haxxu/friend-flow-api/internal/db"
 	"github.com/haxxu/friend-flow-api/internal/modules/auth"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
 	"github.com/haxxu/friend-flow-api/internal/rbac"
 	"github.com/haxxu/friend-flow-api/internal/routes"
+	"gorm.io/gorm"
 )
 
 type App struct {
-	Router  *mux.Router
-	Session *gocql.Session
+	Router     *gin.Engine
+	Session    *gocql.Session
+	PostgresDB *gorm.DB
 }
 
 func InitializeApp(cfg *config.Config) (*App, error) {
-	// Connect to ScyllaDB
-	session, err := db.InitScylla(cfg)
+	postgresDB, err := db.InitPostgres(cfg)
 	if err != nil {
 		return nil, err
 	}
-	db.AutoMigrate(session)
-	db.CreateIndexes(session)
 
-	if err := rbac.InitEnforcer(session); err != nil {
+	if err := rbac.InitEnforcerPostgres(postgresDB); err != nil {
 		return nil, err
 	}
 
 	// Initialize User module
-	userRepo := user.NewRepository(session)
-	userService := user.NewUserService(userRepo)
-	userHandler := user.NewUserHandler(userService)
+	userModule := user.InitModule(postgresDB)
 
-	// Initialize Auth module
-	authService := auth.NewAuthService(userRepo, rbac.Enforcer, cfg.JWTSecret)
-	authHandler := auth.NewAuthHandler(authService)
+	authModule := auth.InitModule(postgresDB, rbac.EnforcerPG, cfg.JWTSecret, userModule.Service)
 
 	// Router
-	router := mux.NewRouter()
+	router := gin.Default()
 	routes.SetupRoutes(router, &routes.Handlers{
-		AuthHandler: authHandler,
-		UserHandler: userHandler,
+		AuthHandler: authModule.Handler,
+		UserHandler: userModule.Handler,
 	})
 
 	return &App{
-		Router:  router,
-		Session: session,
+		Router:     router,
+		PostgresDB: postgresDB,
 	}, nil
 }

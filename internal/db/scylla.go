@@ -13,8 +13,8 @@ import (
 var Session *gocql.Session
 
 func InitScylla(cfg *config.Config) (*gocql.Session, error) {
-	cluster := gocql.NewCluster(cfg.DBHost)
-	cluster.Keyspace = cfg.DBKeyspace
+	cluster := gocql.NewCluster(cfg.ScyllaDBHost)
+	cluster.Keyspace = cfg.ScyllaDBKeyspace
 	cluster.Consistency = gocql.Quorum
 	cluster.Timeout = 10 * time.Second
 

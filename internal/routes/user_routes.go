@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
 )
 
-func UserRoutes(r *mux.Router, handler *user.UserHandler) {
+func UserRoutes(rg *gin.RouterGroup, handler *user.UserHandler) {
 }

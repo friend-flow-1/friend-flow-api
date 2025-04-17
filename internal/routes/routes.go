@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/haxxu/friend-flow-api/internal/modules/auth"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
 )
@@ -13,11 +13,12 @@ type Handlers struct {
 	UserHandler *user.UserHandler
 }
 
-func SetupRoutes(r *mux.Router, h *Handlers) http.Handler {
-	api := r.PathPrefix("/api/v1").Subrouter()
+func SetupRoutes(r *gin.Engine, h *Handlers) http.Handler {
+	api := r.Group("/api/v1")
 
-	AuthRoutes(api, h.AuthHandler)
-	UserRoutes(api, h.UserHandler)
+	AuthRoutes(api.Group("/auth"), h.AuthHandler)
+
+	UserRoutes(api.Group("/users"), h.UserHandler)
 
 	return r
 }

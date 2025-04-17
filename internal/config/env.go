@@ -10,20 +10,40 @@ import (
 )
 
 type Config struct {
-	DBHost     string
-	DBKeyspace string
-	JWTSecret  string
-	ApiPort    string
+	// ScyllaDB
+	ScyllaDBHost     string
+	ScyllaDBKeyspace string
+
+	// PostgreSQL
+	PostgreHost     string
+	PostgrePort     string
+	PostgreUser     string
+	PostgrePassword string
+	PostgreDBName   string
+
+	// App
+	JWTSecret string
+	ApiPort   string
 }
 
 func LoadConfig() *Config {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		DBHost:     GetEnv("DB_HOST", "127.0.0.1:9042"),
-		DBKeyspace: GetEnv("DB_KEYSPACE", "friendflow"),
-		JWTSecret:  GetEnv("JWT_SECRET", "friendflowsecret"),
-		ApiPort:    GetEnv("API_PORT", "8080"),
+		// ScyllaDB config
+		ScyllaDBHost:     GetEnv("SCYLLA_DB_HOST", "127.0.0.1:9042"),
+		ScyllaDBKeyspace: GetEnv("SCYLLA_DB_KEYSPACE", "friendflow"),
+
+		// PostgreSQL config
+		PostgreHost:     GetEnv("POSTGRE_DB_HOST", "127.0.0.1"),
+		PostgrePort:     GetEnv("POSTGRE_DB_PORT", "5432"),
+		PostgreUser:     GetEnv("POSTGRE_DB_USER", "haxxu"),
+		PostgrePassword: GetEnv("POSTGRE_DB_PASSWORD", "User123"),
+		PostgreDBName:   GetEnv("POSTGRE_DB_NAME", "friendflow"),
+
+		// Application config
+		JWTSecret: GetEnv("JWT_SECRET", "friendflowsecret"),
+		ApiPort:   GetEnv("API_PORT", "8080"),
 	}
 	return cfg
 }

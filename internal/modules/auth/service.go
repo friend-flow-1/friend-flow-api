@@ -5,44 +5,48 @@ import (
 	"log"
 	"time"
 
+	"github.com/casbin/casbin/v2"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 	"github.com/haxxu/friend-flow-api/internal/models"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
-
-	"github.com/casbin/casbin/v2"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
-	UserRepo  user.Repository
-	Enforcer  *casbin.Enforcer
-	JWTSecret string
+	UserService *user.UserService
+	Enforcer    *casbin.Enforcer
+	JWTSecret   string
 }
 
-func NewAuthService(repo user.Repository, enforcer *casbin.Enforcer, secret string) *AuthService {
+func NewAuthService(userService *user.UserService, enforcer *casbin.Enforcer, secret string) *AuthService {
 	return &AuthService{
-		UserRepo:  repo,
-		Enforcer:  enforcer,
-		JWTSecret: secret,
+		UserService: userService,
+		Enforcer:    enforcer,
+		JWTSecret:   secret,
 	}
 }
 
 func (s *AuthService) Register(req RegisterDTO) (*user.User, error) {
-	existing, _ := s.UserRepo.FindByEmail(req.Email)
+	// Check if email already exists
+	existing, _ := s.UserService.FindByEmail(req.Email)
 	if existing != nil {
 		return nil, errors.New("email already registered")
 	}
 
+	// Hash the password
 	hashed, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("hello", string(hashed))
+	log.Println("hashed password:", string(hashed))
 
-	newId := uuid.New().String()
+	// Generate new UUID for user ID
+	newId := uuid.New()
+
+	// Create a user DTO
 	u := &user.User{
-		ID:        newId,
+		ID:        newId, // Set the ID as uuid.UUID
 		Email:     req.Email,
 		Password:  string(hashed),
 		FirstName: req.FirstName,
@@ -53,26 +57,30 @@ func (s *AuthService) Register(req RegisterDTO) (*user.User, error) {
 		AuditFields: models.AuditFields{
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
-			CreatedBy: newId,
-			UpdatedBy: newId,
+			CreatedBy: newId.String(), // Here you can set newId.String() if you want to store it as string
+			UpdatedBy: newId.String(), // Same for UpdatedBy
 		},
 	}
 
-	if err := s.UserRepo.Create(u); err != nil {
+	// Call the Create method from UserService to handle user creation
+	if err := s.UserService.CreateUser(u); err != nil {
 		return nil, err
 	}
 
 	// Assign casbin role
-	s.Enforcer.AddRoleForUser(u.ID, string(u.Role))
-	// Assign role in Casbin
-	_, _ = s.Enforcer.AddGroupingPolicy(u.ID, string(u.Role))
+	s.Enforcer.AddRoleForUser(u.ID.String(), string(u.Role))
+	_, _ = s.Enforcer.AddGroupingPolicy(u.ID.String(), string(u.Role))
 
+	// Clear the password field before returning user object
 	u.Password = ""
+
 	return u, nil
 }
 
+// Login authenticates a user and generates a JWT token
 func (s *AuthService) Login(req LoginDTO) (string, *user.User, error) {
-	u, err := s.UserRepo.FindByEmail(req.Email)
+	// Find user by email
+	u, err := s.UserService.FindByEmail(req.Email)
 	if err != nil {
 		log.Println("Error finding user:", err)
 		return "", nil, errors.New("invalid credentials")
@@ -91,13 +99,14 @@ func (s *AuthService) Login(req LoginDTO) (string, *user.User, error) {
 		return "", nil, err
 	}
 
-	// Clear sensitive information before returning user
+	// Clear the password field before returning user
 	u.Password = ""
 	return token, u, nil
 }
 
+// generateJWT generates a JWT token for the user
 func (s *AuthService) generateJWT(u *user.User) (string, error) {
-	// Ensure JWTSecret is valid and logged for debugging
+	// Ensure JWTSecret is valid
 	if s.JWTSecret == "" {
 		log.Println("JWT Secret is empty!")
 		return "", errors.New("missing JWT secret")

@@ -7,10 +7,10 @@ import (
 	"github.com/haxxu/friend-flow-api/internal/db/migrations"
 )
 
-func AutoMigrate(session *gocql.Session) {
+func AutoMigrateScylla(session *gocql.Session) {
 	migrations := []func(*gocql.Session) error{
-		migrations.CreateUsersTable,
-		migrations.CreateCasbinPolicyTable,
+		migrations.CreateUsersTableScylla,
+		migrations.CreateCasbinPolicyTableScylla,
 	}
 
 	for _, migrate := range migrations {

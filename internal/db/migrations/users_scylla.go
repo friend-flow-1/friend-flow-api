@@ -2,7 +2,7 @@ package migrations
 
 import "github.com/gocql/gocql"
 
-func CreateUsersTable(session *gocql.Session) error {
+func CreateUsersTableScylla(session *gocql.Session) error {
 	query := `
 	CREATE TABLE IF NOT EXISTS users (
 		id UUID PRIMARY KEY,

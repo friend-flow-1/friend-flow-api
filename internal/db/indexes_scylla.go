@@ -6,7 +6,7 @@ import (
 	"github.com/gocql/gocql"
 )
 
-func CreateIndexes(session *gocql.Session) {
+func CreateIndexesScylla(session *gocql.Session) {
 	queries := []string{
 		`CREATE INDEX IF NOT EXISTS users_email_idx ON users (email);`,
 		// Add more index queries here
