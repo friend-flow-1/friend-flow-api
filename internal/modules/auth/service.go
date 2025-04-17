@@ -64,6 +64,8 @@ func (s *AuthService) Register(req RegisterDTO) (*user.User, error) {
 
 	// Assign casbin role
 	s.Enforcer.AddRoleForUser(u.ID, string(u.Role))
+	// Assign role in Casbin
+	_, _ = s.Enforcer.AddGroupingPolicy(u.ID, string(u.Role))
 
 	u.Password = ""
 	return u, nil

@@ -38,6 +38,12 @@ func InitEnforcer(session *gocql.Session) error {
 		return err
 	}
 
+	// Seed policies if they don't exist yet (can add check if policies exist)
+	err = SeedPolicies(e)
+	if err != nil {
+		return err
+	}
+
 	// Set the global Enforcer
 	Enforcer = e
 	log.Println("✅ Casbin enforcer initialized")

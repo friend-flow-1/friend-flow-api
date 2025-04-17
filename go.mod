@@ -3,7 +3,6 @@ module github.com/haxxu/friend-flow-api
 go 1.24.0
 
 require (
-	github.com/casbin/casbin v1.9.1
 	github.com/casbin/casbin/v2 v2.104.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-playground/validator/v10 v10.26.0
