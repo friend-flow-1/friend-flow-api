@@ -8,6 +8,11 @@ import (
 )
 
 func AutoMigratePostgres(db *gorm.DB) error {
+	// ✅ Enable uuid-ossp
+	if err := db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error; err != nil {
+		log.Fatalf("❌ Failed to enable uuid-ossp extension: %v", err)
+	}
+
 	err := db.AutoMigrate(
 		&user.User{}, // Add other models here as needed
 	)

@@ -21,7 +21,7 @@ A Go RESTful API built with Gin Gonic, PostgreSQL, Casbin RBAC, and JWT authenti
 ### 🔧 Run PostgreSQL using Docker
 
 ```bash
-docker run --name postgres -e POSTGRES_USER=haxxu -e POSTGRES_PASSWORD=User123 -e POSTGRES_DB=friendflow -p 5432:5432 -d postgres:latest
+docker run --name friendflow-postgres -e POSTGRES_USER=haxxu -e POSTGRES_PASSWORD=User123 -e POSTGRES_DB=friendflow -p 5432:5432 -d postgres:latest
 ```
 
 ### 🔧 Run ScyllaDB using Docker
