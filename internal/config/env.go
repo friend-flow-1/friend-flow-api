@@ -26,6 +26,8 @@ type Config struct {
 	ApiPort   string
 }
 
+var AppConfig *Config
+
 func LoadConfig() *Config {
 	_ = godotenv.Load()
 
@@ -45,6 +47,7 @@ func LoadConfig() *Config {
 		JWTSecret: GetEnv("JWT_SECRET", "friendflowsecret"),
 		ApiPort:   GetEnv("API_PORT", "8080"),
 	}
+	AppConfig = cfg
 	return cfg
 }
 

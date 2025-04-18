@@ -24,14 +24,14 @@ type User struct {
 	LastName   string    `json:"last_name"`
 	Password   string    `json:"-"` // hide from JSON output
 	Status     string    `json:"status" gorm:"default:'active'"`
-	Background string    `json:"background,omitempty"`
+	Background string    `json:"background"`
 	Avatar     string    `json:"avatar,omitempty"`
 	BirthDate  time.Time `json:"birth_date,omitempty"`
 	Gender     string    `json:"gender,omitempty"`
 	Role       Role      `json:"role" gorm:"type:varchar(20);not null"`
 
 	// Embed the AuditFields struct to include the common audit fields
-	models.AuditFields `json:"audit_fields"`
+	models.AuditFields `json:",inline"`
 }
 
 // To be used with GORM for automatic timestamp handling.
