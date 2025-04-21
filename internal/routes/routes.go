@@ -20,5 +20,7 @@ func SetupRoutes(r *gin.Engine, h *Handlers) http.Handler {
 
 	UserRoutes(api.Group("/users"), h.UserHandler)
 
+	MeRoutes(api.Group("/me"), h.UserHandler)
+
 	return r
 }

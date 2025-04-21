@@ -112,11 +112,11 @@ func (s *AuthService) generateJWT(u *user.User) (string, error) {
 		return "", errors.New("missing JWT secret")
 	}
 
-	// Set JWT claims
-	claims := jwt.MapClaims{
-		"sub":  u.ID,                                  // Subject (user ID)
-		"role": u.Role,                                // User role
-		"exp":  time.Now().Add(time.Hour * 72).Unix(), // Expiry time (3 days)
+	claims := models.JWTClaims{
+		Sub: u.ID.String(),
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(72 * time.Hour).Unix(),
+		},
 	}
 
 	// Use HS256 method for signing (using a shared secret)

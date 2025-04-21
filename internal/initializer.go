@@ -1,6 +1,9 @@
 package internal
 
 import (
+	"time"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gocql/gocql"
 	"github.com/haxxu/friend-flow-api/internal/config"
@@ -35,6 +38,15 @@ func InitializeApp(cfg *config.Config) (*App, error) {
 
 	// Router
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // 🔥 Allows all origins
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length", "Authorization"},
+		AllowCredentials: false, // ⚠️ must be false when AllowOrigins is "*"
+		MaxAge:           12 * time.Hour,
+	}))
+
 	routes.SetupRoutes(router, &routes.Handlers{
 		AuthHandler: authModule.Handler,
 		UserHandler: userModule.Handler,

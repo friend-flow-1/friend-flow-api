@@ -27,8 +27,18 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Optional: You can set the user info to context if needed
-		// c.Set("user", userFromToken)
+		// Extract user ID from JWT claims
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			if userID, ok := claims["sub"].(string); ok {
+				c.Set("userId", userID)
+			} else {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID in token"})
+				return
+			}
+		} else {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			return
+		}
 
 		c.Next()
 	}

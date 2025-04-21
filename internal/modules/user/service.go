@@ -26,3 +26,11 @@ func (s *UserService) CreateUser(user *User) error {
 func (s *UserService) FindByEmail(email string) (*User, error) {
 	return s.Repo.FindByEmail(email)
 }
+
+func (s *UserService) GetUserById(userId string) (*User, error) {
+	user, err := s.Repo.FindById(userId)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
