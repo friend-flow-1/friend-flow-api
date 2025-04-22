@@ -3,6 +3,7 @@ package db
 import (
 	"log"
 
+	authsession "github.com/haxxu/friend-flow-api/internal/modules/auth/session"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
 	"gorm.io/gorm"
 )
@@ -15,6 +16,7 @@ func AutoMigratePostgres(db *gorm.DB) error {
 
 	err := db.AutoMigrate(
 		&user.User{}, // Add other models here as needed
+		&authsession.AuthSession{},
 	)
 	if err != nil {
 		log.Printf("❌ Auto migration failed: %v", err)

@@ -34,7 +34,7 @@ func InitializeApp(cfg *config.Config) (*App, error) {
 	// Initialize User module
 	userModule := user.InitModule(postgresDB)
 
-	authModule := auth.InitModule(postgresDB, rbac.EnforcerPG, cfg.JWTSecret, userModule.Service)
+	authModule := auth.InitModule(postgresDB, rbac.EnforcerPG, cfg, userModule.Service)
 
 	// Router
 	router := gin.Default()

@@ -50,7 +50,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, user, err := h.AuthService.Login(req)
+	// Extract user agent and IP
+	ua := c.GetHeader("User-Agent")
+	ip := c.ClientIP()
+
+	// Call the login logic
+	accessToken, refreshToken, user, err := h.AuthService.Login(req, ua, ip)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, models.Response{
 			Success: false,
@@ -59,11 +64,13 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// Return both tokens and user info
 	c.JSON(http.StatusOK, models.Response{
 		Success: true,
 		Data: gin.H{
-			"token": token,
-			"user":  user,
+			"access_token":  accessToken,
+			"refresh_token": refreshToken,
+			"user":          user,
 		},
 	})
 }

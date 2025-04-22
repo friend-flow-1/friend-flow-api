@@ -22,8 +22,10 @@ type Config struct {
 	PostgreDBName   string
 
 	// App
-	JWTSecret string
-	ApiPort   string
+	JWTSecret          string
+	AccessTokenSecret  string
+	RefreshTokenSecret string
+	ApiPort            string
 }
 
 var AppConfig *Config
@@ -44,8 +46,10 @@ func LoadConfig() *Config {
 		PostgreDBName:   GetEnv("POSTGRE_DB_NAME", "friendflow"),
 
 		// Application config
-		JWTSecret: GetEnv("JWT_SECRET", "friendflowsecret"),
-		ApiPort:   GetEnv("API_PORT", "8080"),
+		JWTSecret:          GetEnv("JWT_SECRET", "friendflowsecret"),
+		AccessTokenSecret:  GetEnv("ACCESS_TOKEN_SECRET", "friendflowsecretaccess"),
+		RefreshTokenSecret: GetEnv("REFRESH_TOKEN_SECRET", "friendflowsecretrefresh"),
+		ApiPort:            GetEnv("API_PORT", "8080"),
 	}
 	AppConfig = cfg
 	return cfg

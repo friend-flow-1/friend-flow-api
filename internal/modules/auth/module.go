@@ -1,7 +1,10 @@
 package auth
 
 import (
+	"time"
+
 	"github.com/casbin/casbin/v2"
+	"github.com/haxxu/friend-flow-api/internal/config"
 	authsession "github.com/haxxu/friend-flow-api/internal/modules/auth/session"
 	authtoken "github.com/haxxu/friend-flow-api/internal/modules/auth/token"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
@@ -11,17 +14,25 @@ import (
 type Module struct {
 	Service            *AuthService
 	AuthSessionService *authsession.AuthSessionService
+	TokenService       *authtoken.TokenService
 	Handler            *AuthHandler
 }
 
-func InitModule(db *gorm.DB, enforcer *casbin.Enforcer, jwtSecret string, userService *user.UserService) *Module {
-	authSessionService = authsession.NewAuthSessionService()
-	tokenService * authtoken.TokenService
-	authService := NewAuthService(userService, authSessionService, tokenService, enforcer, jwtSecret)
+func InitModule(db *gorm.DB, enforcer *casbin.Enforcer, cfg *config.Config, userService *user.UserService) *Module {
+	authSessionService := authsession.NewAuthSessionService(authsession.NewGormAuthSessionRepository(db))
+	tokenService := authtoken.NewTokenService(
+		cfg.AccessTokenSecret,
+		cfg.RefreshTokenSecret,
+		time.Minute*15,
+		time.Hour*24*30,
+	)
+	authService := NewAuthService(userService, authSessionService, tokenService, enforcer, cfg)
 	authHandler := NewAuthHandler(authService)
 
 	return &Module{
-		Service: authService,
-		Handler: authHandler,
+		Service:            authService,
+		AuthSessionService: authSessionService,
+		TokenService:       tokenService,
+		Handler:            authHandler,
 	}
 }

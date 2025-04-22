@@ -8,6 +8,7 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
+	"github.com/haxxu/friend-flow-api/internal/config"
 	"github.com/haxxu/friend-flow-api/internal/models"
 	authsession "github.com/haxxu/friend-flow-api/internal/modules/auth/session"
 	authtoken "github.com/haxxu/friend-flow-api/internal/modules/auth/token"
@@ -20,16 +21,16 @@ type AuthService struct {
 	AuthSessionService *authsession.AuthSessionService
 	TokenService       *authtoken.TokenService
 	Enforcer           *casbin.Enforcer
-	JWTSecret          string
+	Config             *config.Config
 }
 
-func NewAuthService(userService *user.UserService, authSessionService *authsession.AuthSessionService, tokenService *authtoken.TokenService, enforcer *casbin.Enforcer, secret string) *AuthService {
+func NewAuthService(userService *user.UserService, authSessionService *authsession.AuthSessionService, tokenService *authtoken.TokenService, enforcer *casbin.Enforcer, cfg *config.Config) *AuthService {
 	return &AuthService{
 		UserService:        userService,
 		AuthSessionService: authSessionService,
 		TokenService:       tokenService,
 		Enforcer:           enforcer,
-		JWTSecret:          secret,
+		Config:             cfg,
 	}
 }
 
@@ -123,7 +124,7 @@ func comparePasswords(hashedPwd string, plainPwd string) error {
 // generateJWT generates a JWT token for the user
 func (s *AuthService) generateJWT(u *user.User) (string, error) {
 	// Ensure JWTSecret is valid
-	if s.JWTSecret == "" {
+	if s.Config.JWTSecret == "" {
 		log.Println("JWT Secret is empty!")
 		return "", errors.New("missing JWT secret")
 	}
@@ -139,7 +140,7 @@ func (s *AuthService) generateJWT(u *user.User) (string, error) {
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Sign and return the JWT token
-	token, err := t.SignedString([]byte(s.JWTSecret))
+	token, err := t.SignedString([]byte(s.Config.JWTSecret))
 	if err != nil {
 		log.Println("Error signing JWT token:", err)
 		return "", err
