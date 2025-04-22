@@ -9,21 +9,27 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/haxxu/friend-flow-api/internal/models"
+	authsession "github.com/haxxu/friend-flow-api/internal/modules/auth/session"
+	authtoken "github.com/haxxu/friend-flow-api/internal/modules/auth/token"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
-	UserService *user.UserService
-	Enforcer    *casbin.Enforcer
-	JWTSecret   string
+	UserService        *user.UserService
+	AuthSessionService *authsession.AuthSessionService
+	TokenService       *authtoken.TokenService
+	Enforcer           *casbin.Enforcer
+	JWTSecret          string
 }
 
-func NewAuthService(userService *user.UserService, enforcer *casbin.Enforcer, secret string) *AuthService {
+func NewAuthService(userService *user.UserService, authSessionService *authsession.AuthSessionService, tokenService *authtoken.TokenService, enforcer *casbin.Enforcer, secret string) *AuthService {
 	return &AuthService{
-		UserService: userService,
-		Enforcer:    enforcer,
-		JWTSecret:   secret,
+		UserService:        userService,
+		AuthSessionService: authSessionService,
+		TokenService:       tokenService,
+		Enforcer:           enforcer,
+		JWTSecret:          secret,
 	}
 }
 
@@ -77,31 +83,41 @@ func (s *AuthService) Register(req RegisterDTO) (*user.User, error) {
 	return u, nil
 }
 
-// Login authenticates a user and generates a JWT token
-func (s *AuthService) Login(req LoginDTO) (string, *user.User, error) {
-	// Find user by email
-	u, err := s.UserService.FindByEmail(req.Email)
+func (s *AuthService) Login(dto LoginDTO, ua string, ip string) (string, string, *user.User, error) {
+	// Validate user credentials (pseudo-code)
+	user, err := s.validateUser(dto)
 	if err != nil {
-		log.Println("Error finding user:", err)
-		return "", nil, errors.New("invalid credentials")
+		return "", "", nil, err
 	}
 
-	// Compare password hash
-	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(req.Password)); err != nil {
-		log.Println("Error comparing passwords:", err)
-		return "", nil, errors.New("invalid credentials")
-	}
+	// Generate tokens
+	accessToken, err := s.TokenService.GenerateAccessToken(user.ID)
+	refreshToken, err := s.TokenService.GenerateRefreshToken(user.ID)
 
-	// Generate JWT token
-	token, err := s.generateJWT(u)
+	// Save session
+	err = s.AuthSessionService.Create(user.ID, refreshToken, ua, ip)
 	if err != nil {
-		log.Println("Error generating JWT token:", err)
-		return "", nil, err
+		return "", "", nil, err
 	}
 
-	// Clear the password field before returning user
-	u.Password = ""
-	return token, u, nil
+	return accessToken, refreshToken, user, nil
+}
+
+func (s *AuthService) validateUser(dto LoginDTO) (*user.User, error) {
+	user, err := s.UserService.FindByEmail(dto.Email)
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	if err := comparePasswords(user.Password, dto.Password); err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	return user, nil
+}
+
+func comparePasswords(hashedPwd string, plainPwd string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(plainPwd))
 }
 
 // generateJWT generates a JWT token for the user
@@ -130,4 +146,16 @@ func (s *AuthService) generateJWT(u *user.User) (string, error) {
 	}
 
 	return token, nil
+}
+
+func (s *AuthService) Logout(token string) error {
+	return s.AuthSessionService.Revoke(token)
+}
+
+func (s *AuthService) LogoutAll(userID uuid.UUID) error {
+	return s.AuthSessionService.RevokeAll(userID)
+}
+
+func (s *AuthService) GetActiveSessions(userID uuid.UUID) ([]authsession.AuthSession, error) {
+	return s.AuthSessionService.List(userID)
 }
