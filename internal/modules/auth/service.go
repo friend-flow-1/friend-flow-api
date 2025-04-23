@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -159,4 +160,17 @@ func (s *AuthService) LogoutAll(userID uuid.UUID) error {
 
 func (s *AuthService) GetActiveSessions(userID uuid.UUID) ([]authsession.AuthSession, error) {
 	return s.AuthSessionService.List(userID)
+}
+
+func (s *AuthService) ValidateRefreshToken(refreshToken string) (uuid.UUID, error) {
+	session, err := s.AuthSessionService.FindByToken(refreshToken)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("session not found: %w", err)
+	}
+
+	if session.Revoked || session.ExpiresAt.Before(time.Now()) {
+		return uuid.Nil, errors.New("refresh token expired or revoked")
+	}
+
+	return session.UserID, nil
 }

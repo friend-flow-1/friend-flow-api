@@ -19,15 +19,17 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-			return []byte(config.AppConfig.JWTSecret), nil // Use secret from config
+			return []byte(config.AppConfig.JWTSecret), nil
 		})
-
-		if err != nil || !token.Valid {
+		if err != nil {
+			if ve, ok := err.(*jwt.ValidationError); ok && ve.Errors == jwt.ValidationErrorExpired {
+				c.AbortWithStatusJSON(419, gin.H{"error": "Access token expired"})
+				return
+			}
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
 		}
 
-		// Extract user ID from JWT claims
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			if userID, ok := claims["sub"].(string); ok {
 				c.Set("userId", userID)
