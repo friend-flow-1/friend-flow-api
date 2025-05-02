@@ -93,8 +93,8 @@ func (s *AuthService) Login(dto LoginDTO, ua string, ip string) (string, string,
 	}
 
 	// Generate tokens
-	accessToken, err := s.TokenService.GenerateAccessToken(user.ID)
-	refreshToken, err := s.TokenService.GenerateRefreshToken(user.ID)
+	accessToken, _ := s.TokenService.GenerateAccessToken(user.ID)
+	refreshToken, _ := s.TokenService.GenerateRefreshToken(user.ID)
 
 	// Save session
 	err = s.AuthSessionService.Create(user.ID, refreshToken, ua, ip)

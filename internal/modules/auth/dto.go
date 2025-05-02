@@ -17,8 +17,8 @@ type LoginDTO struct {
 }
 
 type RefreshTokenDTO struct {
-	RefreshToken string `json:"refreshToken" binding:"required"`
-	UserAgent    string `json:"userAgent"`
+	RefreshToken string `json:"refresh_token" binding:"required"`
+	UserAgent    string `json:"user_agent"`
 	IP           string `json:"ip"`
 }
 

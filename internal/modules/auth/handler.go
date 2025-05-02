@@ -72,6 +72,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 			"access_token":  accessToken,
 			"refresh_token": refreshToken,
 			"user":          user,
+			"ip":            ip,
+			"ua":            ua,
 		},
 	})
 }
@@ -121,7 +123,7 @@ func (h *AuthHandler) LogoutAll(c *gin.Context) {
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var req RefreshTokenDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request", "details": err.Error()})
 		return
 	}
 
