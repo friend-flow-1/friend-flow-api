@@ -11,10 +11,11 @@ func AuthRoutes(rg *gin.RouterGroup, handler *auth.AuthHandler) {
 	rg.POST("/login", handler.Login)
 	rg.POST("/refresh", handler.RefreshToken)
 
+	rg.POST("/logout", handler.Logout)
+
 	auth := rg.Group("/")
 	auth.Use(middleware.AuthMiddleware())
 	{
-		auth.POST("/logout", handler.Logout)
 		auth.POST("/logout-all", handler.LogoutAll)
 	}
 }

@@ -80,12 +80,20 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 func (h *AuthHandler) Logout(c *gin.Context) {
 	var req struct {
-		Token string `json:"token" binding:"required"`
+		Token string `json:"refresh_token" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{
 			Success: false,
-			Error:   err.Error(),
+			Error:   "Invalid request: " + err.Error(),
+		})
+		return
+	}
+
+	if err := h.AuthService.Logout(req.Token); err != nil {
+		c.JSON(http.StatusInternalServerError, models.Response{
+			Success: false,
+			Error:   "Failed to revoke session: " + err.Error(),
 		})
 		return
 	}
@@ -138,14 +146,16 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	newRefreshToken, _ := h.AuthService.TokenService.GenerateRefreshToken(userID)
 
 	// Replace the old session
-	err = h.AuthService.AuthSessionService.Update(userID, req.RefreshToken, newRefreshToken, req.UserAgent, req.IP)
+	err = h.AuthService.AuthSessionService.Update(userID, req.RefreshToken, req.RefreshToken, req.UserAgent, req.IP)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update session"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"accessToken":  accessToken,
-		"refreshToken": newRefreshToken,
+	c.JSON(http.StatusOK, models.Response{
+		Success: true,
+		Data: gin.H{"access_token": accessToken,
+			"refresh_token": newRefreshToken,
+		},
 	})
 }

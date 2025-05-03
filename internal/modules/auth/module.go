@@ -23,8 +23,8 @@ func InitModule(db *gorm.DB, enforcer *casbin.Enforcer, cfg *config.Config, user
 	tokenService := authtoken.NewTokenService(
 		cfg.AccessTokenSecret,
 		cfg.RefreshTokenSecret,
-		time.Minute*15,
-		time.Hour*24*30,
+		time.Minute*15,  // 15m
+		time.Hour*24*30, // 30d
 	)
 	authService := NewAuthService(userService, authSessionService, tokenService, enforcer, cfg)
 	authHandler := NewAuthHandler(authService)

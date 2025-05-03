@@ -9,5 +9,5 @@ import (
 func MeRoutes(rg *gin.RouterGroup, handler *user.UserHandler) {
 	protected := rg.Group("/", middleware.AuthMiddleware())
 
-	protected.GET("/", handler.GetUserInfo)
+	protected.GET("info", handler.GetUserInfo)
 }

@@ -31,21 +31,21 @@ func InitializeApp(cfg *config.Config) (*App, error) {
 		return nil, err
 	}
 
+	// Router
+	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length", "Authorization"},
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	// Initialize User module
 	userModule := user.InitModule(postgresDB)
 
 	authModule := auth.InitModule(postgresDB, rbac.EnforcerPG, cfg, userModule.Service)
-
-	// Router
-	router := gin.Default()
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"}, // 🔥 Allows all origins
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length", "Authorization"},
-		AllowCredentials: false, // ⚠️ must be false when AllowOrigins is "*"
-		MaxAge:           12 * time.Hour,
-	}))
 
 	routes.SetupRoutes(router, &routes.Handlers{
 		AuthHandler: authModule.Handler,
