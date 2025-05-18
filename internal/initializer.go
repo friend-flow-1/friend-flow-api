@@ -9,6 +9,7 @@ import (
 	"github.com/haxxu/friend-flow-api/internal/config"
 	"github.com/haxxu/friend-flow-api/internal/db"
 	"github.com/haxxu/friend-flow-api/internal/modules/auth"
+	chat_server "github.com/haxxu/friend-flow-api/internal/modules/chat/server"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
 	"github.com/haxxu/friend-flow-api/internal/rbac"
 	"github.com/haxxu/friend-flow-api/internal/routes"
@@ -47,9 +48,12 @@ func InitializeApp(cfg *config.Config) (*App, error) {
 
 	authModule := auth.InitModule(postgresDB, rbac.EnforcerPG, cfg, userModule.Service)
 
+	chatServerModule := chat_server.InitModule(postgresDB)
+
 	routes.SetupRoutes(router, &routes.Handlers{
-		AuthHandler: authModule.Handler,
-		UserHandler: userModule.Handler,
+		AuthHandler:       authModule.Handler,
+		UserHandler:       userModule.Handler,
+		ChatServerHandler: chatServerModule.Handler,
 	})
 
 	return &App{

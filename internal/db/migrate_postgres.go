@@ -4,7 +4,7 @@ import (
 	"log"
 
 	authsession "github.com/haxxu/friend-flow-api/internal/modules/auth/session"
-	chat_server "github.com/haxxu/friend-flow-api/internal/modules/server/models"
+	chat_server "github.com/haxxu/friend-flow-api/internal/modules/chat/server/models"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
 	"gorm.io/gorm"
 )

@@ -1,4 +1,4 @@
-package chat_server
+package chat_server_models
 
 import (
 	"github.com/google/uuid"

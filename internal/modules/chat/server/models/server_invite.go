@@ -1,4 +1,4 @@
-package chat_server
+package chat_server_models
 
 import (
 	"time"
@@ -11,7 +11,6 @@ type ServerInvite struct {
 	ID        uuid.UUID  `json:"id" gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	ServerID  uuid.UUID  `json:"server_id"`
 	Code      string     `json:"code" gorm:"uniqueIndex"`
-	CreatedBy uuid.UUID  `json:"created_by"`
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 
 	models.AuditFields `json:",inline"`
