@@ -1,9 +1,9 @@
 package chat_server
 
 type ServerHandler struct {
-	ServerService *ServerService
+	ServerService ServerService
 }
 
-func NewServerHandler(service *ServerService) *ServerHandler {
+func NewServerHandler(service ServerService) *ServerHandler {
 	return &ServerHandler{ServerService: service}
 }
