@@ -3,7 +3,6 @@ package config
 import (
 	_ "log"
 	"os"
-	_ "os"
 
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv"
@@ -26,6 +25,12 @@ type Config struct {
 	AccessTokenSecret  string
 	RefreshTokenSecret string
 	ApiPort            string
+
+	MinioEndpoint  string
+	MinioAccessKey string
+	MinioSecretKey string
+	MinioBucket    string
+	MinioUseSSL    bool
 }
 
 var AppConfig *Config
@@ -50,6 +55,12 @@ func LoadConfig() *Config {
 		AccessTokenSecret:  GetEnv("ACCESS_TOKEN_SECRET", "friendflowsecretaccess"),
 		RefreshTokenSecret: GetEnv("REFRESH_TOKEN_SECRET", "friendflowsecretrefresh"),
 		ApiPort:            GetEnv("API_PORT", "8080"),
+
+		MinioEndpoint:  GetEnv("MINIO_ENDPOINT", "localhost:9000"),
+		MinioAccessKey: GetEnv("MINIO_ACCESS_KEY", "haxxu"),
+		MinioSecretKey: GetEnv("MINIO_SECRET_KEY", "User1234"),
+		MinioBucket:    GetEnv("MINIO_BUCKET", "friendflowmediauploads"),
+		MinioUseSSL:    GetEnv("MINIO_USE_SSL", "false") == "true",
 	}
 	AppConfig = cfg
 	return cfg

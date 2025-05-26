@@ -1,6 +1,9 @@
 package internal
 
 import (
+	"bytes"
+	"context"
+	"log"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -13,6 +16,8 @@ import (
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
 	"github.com/haxxu/friend-flow-api/internal/rbac"
 	"github.com/haxxu/friend-flow-api/internal/routes"
+	minioinit "github.com/haxxu/friend-flow-api/pkg/minio"
+	"github.com/minio/minio-go/v7"
 	"gorm.io/gorm"
 )
 
@@ -31,6 +36,42 @@ func InitializeApp(cfg *config.Config) (*App, error) {
 	if err := rbac.InitEnforcerPostgres(postgresDB); err != nil {
 		return nil, err
 	}
+
+	// Minio Start ----------------------------------------------------------
+	// Minio client initialization can be added here if needed
+	minioClient := minioinit.InitMinio(cfg)
+	ctx := context.Background()
+
+	// Make sure bucket exists
+	bucket := cfg.MinioBucket
+	exists, err := minioClient.BucketExists(ctx, bucket)
+	if err != nil {
+		log.Fatalf("❌ Failed to check bucket: %v", err)
+	}
+	if !exists {
+		if err := minioClient.MakeBucket(ctx, bucket, minio.MakeBucketOptions{}); err != nil {
+			log.Fatalf("❌ Failed to create bucket: %v", err)
+		}
+		log.Printf("✅ Bucket created: %s", bucket)
+	} else {
+		log.Printf("🪣 Bucket already exists: %s", bucket)
+	}
+
+	// Prepare file data
+	objectName := "test-file.txt"
+	content := []byte("This is just a test file 🧪")
+	contentType := "text/plain"
+
+	// Upload to MinIO
+	_, err = minioClient.PutObject(ctx, bucket, objectName, bytes.NewReader(content), int64(len(content)), minio.PutObjectOptions{
+		ContentType: contentType,
+	})
+	if err != nil {
+		log.Fatalf("❌ Upload failed: %v", err)
+	}
+
+	log.Printf("✅ Successfully uploaded %s to bucket %s", objectName, bucket)
+	// Minio End ----------------------------------------------------------
 
 	// Router
 	router := gin.Default()
