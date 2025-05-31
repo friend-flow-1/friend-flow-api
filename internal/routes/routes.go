@@ -6,13 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/haxxu/friend-flow-api/internal/modules/auth"
 	chat_server "github.com/haxxu/friend-flow-api/internal/modules/chat/server"
+	"github.com/haxxu/friend-flow-api/internal/modules/media_upload"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
 )
 
 type Handlers struct {
-	AuthHandler       *auth.AuthHandler
-	UserHandler       *user.UserHandler
-	ChatServerHandler *chat_server.ServerHandler
+	AuthHandler        *auth.AuthHandler
+	UserHandler        *user.UserHandler
+	ChatServerHandler  *chat_server.ServerHandler
+	MediaUploadHandler *media_upload.MediaUploadHandler
 }
 
 func SetupRoutes(r *gin.Engine, h *Handlers) http.Handler {
@@ -24,5 +26,8 @@ func SetupRoutes(r *gin.Engine, h *Handlers) http.Handler {
 
 	MeRoutes(api.Group("/me"), h.UserHandler)
 
+	ChatServerRoutes(api.Group("/servers"), h.ChatServerHandler)
+
+	MediaUploadRoutes(api.Group("/media"), h.MediaUploadHandler)
 	return r
 }

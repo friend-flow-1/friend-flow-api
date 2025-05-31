@@ -13,6 +13,7 @@ import (
 	"github.com/haxxu/friend-flow-api/internal/db"
 	"github.com/haxxu/friend-flow-api/internal/modules/auth"
 	chat_server "github.com/haxxu/friend-flow-api/internal/modules/chat/server"
+	"github.com/haxxu/friend-flow-api/internal/modules/media_upload"
 	"github.com/haxxu/friend-flow-api/internal/modules/user"
 	"github.com/haxxu/friend-flow-api/internal/rbac"
 	"github.com/haxxu/friend-flow-api/internal/routes"
@@ -91,10 +92,13 @@ func InitializeApp(cfg *config.Config) (*App, error) {
 
 	chatServerModule := chat_server.InitModule(postgresDB)
 
+	mediaUploadModule := media_upload.InitModule(postgresDB)
+
 	routes.SetupRoutes(router, &routes.Handlers{
-		AuthHandler:       authModule.Handler,
-		UserHandler:       userModule.Handler,
-		ChatServerHandler: chatServerModule.Handler,
+		AuthHandler:        authModule.Handler,
+		UserHandler:        userModule.Handler,
+		ChatServerHandler:  chatServerModule.Handler,
+		MediaUploadHandler: mediaUploadModule.Handler,
 	})
 
 	return &App{
