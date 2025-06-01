@@ -2,17 +2,17 @@ version: '3.8'
 
 services:
   # 🐘 PostgreSQL
-  # postgres:
-  #   image: postgres:latest
-  #   container_name: friendflow-postgres
-  #   environment:
-  #     POSTGRES_USER: haxxu
-  #     POSTGRES_PASSWORD: User123
-  #     POSTGRES_DB: friendflow
-  #   ports:
-  #     - '5432:5432'
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
+  postgres:
+    image: postgres:latest
+    container_name: friendflow-postgres
+    environment:
+      POSTGRES_USER: haxxu
+      POSTGRES_PASSWORD: User123
+      POSTGRES_DB: friendflow
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
   # 🔁 ScyllaDB (Optional)
   # scylla:
@@ -36,5 +36,5 @@ services:
     command: server /data --console-address ":9001"
 
 volumes:
-  # pgdata:
+  pgdata:
   minio-data:
