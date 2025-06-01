@@ -3,7 +3,9 @@ package internal
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -18,6 +20,7 @@ import (
 	"github.com/haxxu/friend-flow-api/internal/rbac"
 	"github.com/haxxu/friend-flow-api/internal/routes"
 	"github.com/haxxu/friend-flow-api/internal/shared"
+	"github.com/haxxu/friend-flow-api/pkg/idgen"
 	minioinit "github.com/haxxu/friend-flow-api/pkg/minio"
 	"github.com/minio/minio-go/v7"
 )
@@ -33,13 +36,12 @@ func InitializeApp(cfg *config.Config) (*App, error) {
 		return nil, err
 	}
 
-	EnforcerPG, err := rbac.InitEnforcerPostgres(postgresDB)
+	enforcerPG, err := rbac.InitEnforcerPostgres(postgresDB)
 	if err != nil {
 		return nil, err
 	}
 
-	// Minio Start ----------------------------------------------------------
-	// Minio client initialization can be added here if needed
+	// Minio client
 	minioClient, err := minioinit.InitMinio(cfg)
 	if err != nil {
 		return nil, err
@@ -48,11 +50,22 @@ func InitializeApp(cfg *config.Config) (*App, error) {
 		return nil, err
 	}
 
+	// Snowflake ID generator
+	snowflakeNodeID, err := strconv.ParseInt(cfg.SnowflakeNodeID, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid SNOWFLAKE_NODE_ID: %w", err)
+	}
+	snowflake, err := idgen.InitSnowflakeNode(snowflakeNodeID)
+	if err != nil {
+		return nil, err
+	}
+
 	deps := &shared.CoreDeps{
-		Config:      cfg,
-		PostgresDB:  postgresDB,
-		MinioClient: minioClient,
-		EnforcerPG:  EnforcerPG,
+		Config:        cfg,
+		PostgresDB:    postgresDB,
+		MinioClient:   minioClient,
+		EnforcerPG:    enforcerPG,
+		SnowflakeNode: snowflake,
 	}
 
 	// Router

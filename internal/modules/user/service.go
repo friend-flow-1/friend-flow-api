@@ -2,16 +2,22 @@ package user
 
 import "errors"
 
-type UserService struct {
+type UserService interface {
+	CreateUser(user *User) error
+	FindByEmail(email string) (*User, error)
+	GetUserById(userId string) (*User, error)
+}
+
+type userService struct {
 	Repo Repository
 }
 
-func NewUserService(repo Repository) *UserService {
-	return &UserService{Repo: repo}
+func NewUserService(repo Repository) UserService {
+	return &userService{Repo: repo}
 }
 
 // CreateUser handles creating a new user.
-func (s *UserService) CreateUser(user *User) error {
+func (s *userService) CreateUser(user *User) error {
 	// Check if email already exists
 	existing, _ := s.Repo.FindByEmail(user.Email)
 	if existing != nil {
@@ -23,11 +29,11 @@ func (s *UserService) CreateUser(user *User) error {
 }
 
 // FindByEmail fetches a user by email.
-func (s *UserService) FindByEmail(email string) (*User, error) {
+func (s *userService) FindByEmail(email string) (*User, error) {
 	return s.Repo.FindByEmail(email)
 }
 
-func (s *UserService) GetUserById(userId string) (*User, error) {
+func (s *userService) GetUserById(userId string) (*User, error) {
 	user, err := s.Repo.FindById(userId)
 	if err != nil {
 		return nil, err

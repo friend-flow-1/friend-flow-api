@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Module struct {
 	Repo    *repository
-	Service *UserService
+	Service UserService
 	Handler *UserHandler
 }
 

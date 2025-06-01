@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/casbin/casbin/v2"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/haxxu/friend-flow-api/internal/config"
 	"github.com/haxxu/friend-flow-api/internal/models"
@@ -18,14 +18,14 @@ import (
 )
 
 type AuthService struct {
-	UserService        *user.UserService
+	UserService        user.UserService
 	AuthSessionService *authsession.AuthSessionService
 	TokenService       *authtoken.TokenService
 	Enforcer           *casbin.Enforcer
 	Config             *config.Config
 }
 
-func NewAuthService(userService *user.UserService, authSessionService *authsession.AuthSessionService, tokenService *authtoken.TokenService, enforcer *casbin.Enforcer, cfg *config.Config) *AuthService {
+func NewAuthService(userService user.UserService, authSessionService *authsession.AuthSessionService, tokenService *authtoken.TokenService, enforcer *casbin.Enforcer, cfg *config.Config) *AuthService {
 	return &AuthService{
 		UserService:        userService,
 		AuthSessionService: authSessionService,

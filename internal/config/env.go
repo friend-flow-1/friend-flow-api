@@ -31,6 +31,9 @@ type Config struct {
 	MinioSecretKey string
 	MinioBucket    string
 	MinioUseSSL    bool
+
+	// Snowflake ID generator
+	SnowflakeNodeID string
 }
 
 var AppConfig *Config
@@ -61,6 +64,8 @@ func LoadConfig() *Config {
 		MinioSecretKey: GetEnv("MINIO_SECRET_KEY", "User1234"),
 		MinioBucket:    GetEnv("MINIO_BUCKET", "friendflowmediauploads"),
 		MinioUseSSL:    GetEnv("MINIO_USE_SSL", "false") == "true",
+
+		SnowflakeNodeID: GetEnv("SNOWFLAKE_NODE_ID", "1"),
 	}
 	AppConfig = cfg
 	return cfg

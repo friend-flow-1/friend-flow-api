@@ -18,7 +18,7 @@ type Module struct {
 	Handler            *AuthHandler
 }
 
-func InitModule(db *gorm.DB, enforcer *casbin.Enforcer, cfg *config.Config, userService *user.UserService) *Module {
+func InitModule(db *gorm.DB, enforcer *casbin.Enforcer, cfg *config.Config, userService user.UserService) *Module {
 	authSessionService := authsession.NewAuthSessionService(authsession.NewGormAuthSessionRepository(db))
 	tokenService := authtoken.NewTokenService(
 		cfg.AccessTokenSecret,
