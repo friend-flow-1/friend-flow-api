@@ -3,7 +3,7 @@ package user
 import "gorm.io/gorm"
 
 type Module struct {
-	Repo    *repository
+	Repo    UserRepository
 	Service UserService
 	Handler *UserHandler
 }
