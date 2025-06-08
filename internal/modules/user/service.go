@@ -31,7 +31,7 @@ func (s *userService) FindByEmail(email string) (*User, error) {
 }
 
 func (s *userService) GetUserById(userId string) (*User, error) {
-	user, err := s.UserRepo.FindById(userId)
+	user, err := s.UserRepo.GetByID(userId)
 	if err != nil {
 		return nil, err
 	}

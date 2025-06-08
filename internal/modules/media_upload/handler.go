@@ -44,7 +44,7 @@ func (h *MediaUploadHandler) DeleteFile(c *gin.Context) {
 		return
 	}
 
-	err = h.service.Delete(mediaID)
+	err = h.service.Delete(mediaID.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

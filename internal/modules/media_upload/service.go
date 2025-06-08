@@ -14,10 +14,10 @@ import (
 
 type MediaUploadService interface {
 	Create(mediaUpload *MediaUpload) error
-	GetByID(id uuid.UUID) (*MediaUpload, error)
-	GetByOwnerID(ownerID uuid.UUID) ([]MediaUpload, error)
+	GetByID(id string) (*MediaUpload, error)
+	GetByOwnerID(ownerID string) ([]MediaUpload, error)
 	Update(mediaUpload *MediaUpload) error
-	Delete(id uuid.UUID) error
+	Delete(id string) error
 	UploadFile(c *gin.Context)
 	DeleteFile(c *gin.Context)
 }
@@ -35,17 +35,19 @@ func (s *mediaUploadService) Create(mediaUpload *MediaUpload) error {
 	return s.repo.Create(mediaUpload)
 }
 
-func (s *mediaUploadService) GetByID(id uuid.UUID) (*MediaUpload, error) {
+func (s *mediaUploadService) GetByID(id string) (*MediaUpload, error) {
 	return s.repo.GetByID(id)
 }
-func (s *mediaUploadService) GetByOwnerID(ownerID uuid.UUID) ([]MediaUpload, error) {
+
+func (s *mediaUploadService) GetByOwnerID(ownerID string) ([]MediaUpload, error) {
 
 	return s.repo.GetByOwnerID(ownerID)
 }
 func (s *mediaUploadService) Update(mediaUpload *MediaUpload) error {
 	return s.repo.Update(mediaUpload)
 }
-func (s *mediaUploadService) Delete(id uuid.UUID) error {
+
+func (s *mediaUploadService) Delete(id string) error {
 	return s.repo.Delete(id)
 }
 
@@ -107,7 +109,7 @@ func (s *mediaUploadService) DeleteFile(c *gin.Context) {
 		return
 	}
 
-	media, err := s.repo.GetByID(mediaID)
+	media, err := s.repo.GetByID(mediaID.String())
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Media not found"})
 		return
@@ -122,7 +124,7 @@ func (s *mediaUploadService) DeleteFile(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete file from storage"})
 		return
 	}
-	if err := s.repo.Delete(mediaID); err != nil {
+	if err := s.repo.Delete(mediaID.String()); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete media from DB"})
 		return
 	}

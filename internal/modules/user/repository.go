@@ -1,22 +1,26 @@
 package user
 
 import (
+	"github.com/haxxu/friend-flow-api/pkg/repository"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	Create(user *User) error
+	repository.BaseRepository[User]
 	FindByEmail(email string) (*User, error)
-	FindById(userId string) (*User, error)
 }
 
 type userRepository struct {
 	db *gorm.DB
+	repository.BaseRepository[User]
 }
 
 // NewUserRepository initializes the user repository with the database connection.
 func NewUserRepository(db *gorm.DB) UserRepository {
-	return &userRepository{db: db}
+	return &userRepository{
+		BaseRepository: repository.NewBaseRepository[User](db),
+		db:             db,
+	}
 }
 
 // Create implements Repository.
@@ -28,14 +32,6 @@ func (r *userRepository) Create(user *User) error {
 func (r *userRepository) FindByEmail(email string) (*User, error) {
 	var user User
 	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
-func (r *userRepository) FindById(userId string) (*User, error) {
-	var user User
-	if err := r.db.First(&user, "id = ?", userId).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
